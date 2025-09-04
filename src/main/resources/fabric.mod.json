@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "player-detector",
+  "version": "${version}",
+
+  "name": "Player-Detector",
+  "description": "",
+  "authors": [],
+  "contact": {},
+
+  "license": "All-Rights-Reserved",
+  "icon": "assets/player-detector/icon.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "fabric-datagen": ["de.neb.playerDetector.client.PlayerDetectorDataGenerator"],
+    "client": ["de.neb.playerDetector.client.PlayerDetectorClient"],
+    "main": ["de.neb.playerDetector.PlayerDetector"]
+  },
+
+  "mixins": [
+    "player-detector.mixins.json"
+    ,{
+      "config": "player-detector.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
