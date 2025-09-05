@@ -13,8 +13,7 @@
 
   "environment": "client",
   "entrypoints": {
-    "fabric-datagen": ["de.neb.playerDetector.client.PlayerDetectorDataGenerator"],
-    "client": ["de.neb.playerDetector.client.PlayerDetectorClient"],
+    "client": ["de.neb.playerDetector.client.PlayerDetector"],
     "main": ["de.neb.playerDetector.PlayerDetector"]
   },
 
