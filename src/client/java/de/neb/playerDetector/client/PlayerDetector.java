@@ -1,5 +1,7 @@
 package de.neb.playerDetector.client;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -17,6 +19,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 
+import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
+import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
+
 public class PlayerDetector implements ClientModInitializer {
 
     public static boolean AfkDector = false;
@@ -25,22 +30,70 @@ public class PlayerDetector implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
 
+        SavaData savaData = new SavaData();
+        DetectPlayer detectPlayer = new DetectPlayer(savaData);
+
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+
+            dispatcher.register(
+                    ClientCommandManager.literal("afk")
+                            // Ohne Argument: schaltet AFK ein/aus
+                            .executes(context -> {
+                                System.out.println("AFK Code ausgeführt!");
+                                if (AfkDector) {
+                                    detectPlayer.setDisable();
+                                    AfkDector = false;
+                                } else {
+                                    detectPlayer.setEnable();
+                                    detectPlayer.loadScript(savaData);
+                                    AfkDector = true;
+                                }
+                                return 1;
+                            })
+                            // Mit "action"-Argument
+                            .then(ClientCommandManager.argument("action", StringArgumentType.word())
+                                    .suggests((context, builder) -> {
+                                        builder.suggest("disableOnMove");
+                                        builder.suggest("discordWebhook");
+                                        return builder.buildFuture();
+                                    })
+                                    // Spezielle Kette für disableOnMove
+                                    .then(ClientCommandManager.argument("value", StringArgumentType.word())
+                                            .suggests((context, builder) -> {
+                                                builder.suggest("true");
+                                                builder.suggest("false");
+                                                return builder.buildFuture();
+                                            })
+                                            .executes(context -> {
+                                                String action = StringArgumentType.getString(context, "action");
+                                                String valueStr = StringArgumentType.getString(context, "value");
+                                                boolean boolValue = Boolean.parseBoolean(valueStr);
+
+                                                if (action.equalsIgnoreCase("disableOnMove")) {
+                                                    detectPlayer.setDisableOnMove(savaData, boolValue);
+                                                    System.out.println("disableOnMove gesetzt auf " + boolValue);
+                                                }
+                                                return 1;
+                                            })
+                                    )
+                                    // Spezielle Kette für discordWebhook
+                                    .then(ClientCommandManager.argument("webhook", StringArgumentType.string())
+                                            .executes(context -> {
+                                                String webhook = StringArgumentType.getString(context, "webhook");
+                                                savaData.saveDataKey("discordWebhook", webhook);
+                                                System.out.println("Discord Webhook gesetzt auf: " + webhook);
+                                                return 1;
+                                            })
+                                    )
+                            )
+            );
+        });
 
 
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("afk")
-                .executes(commandContext -> {
 
 
 
-                        AfkDector = true;
-                        new DetectPlayer();
 
-                    return 1;
-                })
-
-
-
-        ));
 
 
     }

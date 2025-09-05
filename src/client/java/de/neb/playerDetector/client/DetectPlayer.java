@@ -20,11 +20,17 @@ public class DetectPlayer {
 
     public boolean Afk;
 
+    public boolean disableOnMove;
 
 
-    public DetectPlayer(){
 
+    public DetectPlayer(SavaData savaData){
         Afk = true;
+    }
+
+    public void loadScript(SavaData savaData){
+
+        disableOnMove = Boolean.parseBoolean(savaData.getDataKey("disableOnMove"));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
@@ -50,7 +56,7 @@ public class DetectPlayer {
                     currentPlayers.put(playerEntity.getName().getString(), playerEntity);
 
                     if (foundPlayers.containsKey(playerEntity.getName().getString())) continue;
-                    new sendDiscrodMessage(playerEntity, client.player.getName().getString());
+                    new sendDiscrodMessage(playerEntity, client.player.getName().getString(),savaData);
                 }
             }
 
@@ -59,7 +65,25 @@ public class DetectPlayer {
         });
     }
 
+
+    public void setEnable(){Afk = true;}
+
+    public void setDisable(){
+        MinecraftClient.getInstance().player.sendMessage(Text.literal("AFK Detector now off!").setStyle(Style.EMPTY.withColor(Formatting.LIGHT_PURPLE)),true);
+        Afk = false;
+    }
+
+    public void setDisableOnMove(SavaData savaData, boolean boolValue){
+        savaData.saveDataKey("disableOnMove", String.valueOf(boolValue));
+        disableOnMove = boolValue;
+
+    }
+
+
     public boolean checkIfPlayerMoved(){
+
+        if (!disableOnMove) return false;
+
         KeyBinding forwardKey = MinecraftClient.getInstance().options.forwardKey;
         KeyBinding leftKey = MinecraftClient.getInstance().options.leftKey;
         KeyBinding rightKey = MinecraftClient.getInstance().options.rightKey;
@@ -73,7 +97,4 @@ public class DetectPlayer {
         return false;
 
     }
-
-
-
 }

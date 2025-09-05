@@ -9,7 +9,7 @@ import java.net.http.HttpResponse;
 
 public class sendDiscrodMessage {
 
-    public sendDiscrodMessage(PlayerEntity player, String currentPlayer){
+    public sendDiscrodMessage(PlayerEntity player, String currentPlayer, SavaData savaData){
         try {
 
             HttpClient client = HttpClient.newHttpClient();
@@ -50,7 +50,7 @@ public class sendDiscrodMessage {
 
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://discordapp.com/api/webhooks/1410895607131930624/jhcaoMYoXhQT-wPqk-869tWehdL71yBBSCqxgbmZ2ufdEfF3k-1i4GLOnrUkBO2NcVBF"))
+                    .uri(new URI(savaData.getDataKey("discordWebhook")))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
