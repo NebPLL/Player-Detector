@@ -47,8 +47,6 @@ public class sendDiscrodMessage {
                     "  ]\n" +
                     "}";
 
-
-
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(savaData.getDataKey("discordWebhook")))
                     .header("Content-Type", "application/json")

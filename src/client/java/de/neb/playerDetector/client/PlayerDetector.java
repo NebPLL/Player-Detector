@@ -37,7 +37,6 @@ public class PlayerDetector implements ClientModInitializer {
 
             dispatcher.register(
                     ClientCommandManager.literal("afk")
-                            // Ohne Argument: schaltet AFK ein/aus
                             .executes(context -> {
                                 System.out.println("AFK Code ausgeführt!");
                                 if (AfkDector) {
@@ -50,14 +49,13 @@ public class PlayerDetector implements ClientModInitializer {
                                 }
                                 return 1;
                             })
-                            // Mit "action"-Argument
                             .then(ClientCommandManager.argument("action", StringArgumentType.word())
                                     .suggests((context, builder) -> {
                                         builder.suggest("disableOnMove");
                                         builder.suggest("discordWebhook");
                                         return builder.buildFuture();
                                     })
-                                    // Spezielle Kette für disableOnMove
+                                    // disableOnMove-Kette
                                     .then(ClientCommandManager.argument("value", StringArgumentType.word())
                                             .suggests((context, builder) -> {
                                                 builder.suggest("true");
@@ -67,17 +65,16 @@ public class PlayerDetector implements ClientModInitializer {
                                             .executes(context -> {
                                                 String action = StringArgumentType.getString(context, "action");
                                                 String valueStr = StringArgumentType.getString(context, "value");
-                                                boolean boolValue = Boolean.parseBoolean(valueStr);
-
                                                 if (action.equalsIgnoreCase("disableOnMove")) {
+                                                    boolean boolValue = Boolean.parseBoolean(valueStr);
                                                     detectPlayer.setDisableOnMove(savaData, boolValue);
                                                     System.out.println("disableOnMove gesetzt auf " + boolValue);
                                                 }
                                                 return 1;
                                             })
                                     )
-                                    // Spezielle Kette für discordWebhook
-                                    .then(ClientCommandManager.argument("webhook", StringArgumentType.string())
+                                    // discordWebhook-Kette
+                                    .then(ClientCommandManager.argument("webhook", StringArgumentType.greedyString())
                                             .executes(context -> {
                                                 String webhook = StringArgumentType.getString(context, "webhook");
                                                 savaData.saveDataKey("discordWebhook", webhook);
@@ -88,14 +85,6 @@ public class PlayerDetector implements ClientModInitializer {
                             )
             );
         });
-
-
-
-
-
-
-
-
     }
 
     public static void setAfkDector(boolean set){
